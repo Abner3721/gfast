@@ -1,0 +1,90 @@
+server:
+  address:     ":8808"               # 服务器监听地址及端口
+  serverRoot: "resource/public"      # 服务器根目录，用于服务静态文件
+  dumpRouterMap: false               # 是否输出路由表，默认为false
+  routeOverWrite: true               # 是否覆盖已有的路由，默认为true
+  openapiPath: "/api.json"           # OpenAPI文件的访问路径
+  swaggerPath: "/swagger"            # Swagger文档的访问路径
+  NameToUriType: 3                   # 控制器绑定的Uri生成规则，1-4为不同生成方式
+  maxHeaderBytes: "20KB"             # HTTP请求头部的最大字节数
+  clientMaxBodySize: "50MB"          # HTTP请求体的最大字节数
+  # Logging配置
+  logPath: "resource/log/server"     # 日志文件的存储目录路径，默认为空即关闭日志
+  logStdout: true                    # 是否将日志输出到终端，默认为true
+  errorStack: true                   # 捕获到异常时是否记录堆栈信息，默认为true
+  errorLogEnabled: true              # 是否记录异常日志，默认为true
+  errorLogPattern: "error-{Ymd}.log" # 异常错误日志文件的命名格式
+  accessLogEnabled: true             # 是否记录访问日志，默认为false
+  accessLogPattern: "access-{Ymd}.log" # 访问日志文件的命名格式
+
+logger:
+  path: "resource/log/run"           # 日志存储路径
+  file: "{Y-m-d}.log"                # 日志文件的命名格式
+  level: "all"                       # 日志级别，all表示所有级别
+  stdout: true                       # 是否将日志输出到终端，默认为true
+
+# Database 配置
+database:
+  logger:
+    level:   "all"                   # 数据库日志级别
+    stdout:  true                    # 是否将数据库日志输出到终端
+    Path: "resource/log/sql"         # 数据库日志文件路径
+
+  default:
+    link:   "mysql:root:root@tcp(127.0.0.1:3306)/gfast?charset=utf8mb4&parseTime=true&loc=Local" # MySQL数据库连接信息
+    debug:  true                     # 是否启用调试模式，启用后会打印SQL语句
+    charset: "utf8mb4"               # 数据库字符集设置
+    dryRun: false                    # 是否启用空跑模式，默认为false
+    maxIdle: 10                      # 数据库连接池的最大空闲连接数
+    maxOpen: 10                      # 数据库连接池的最大打开连接数
+    maxLifetime: "30s"               # 连接对象可重复使用的时间长度
+
+# gfToken 配置
+gfToken:
+  cacheKey: "gfToken:"               # Token在缓存中的前缀
+  timeOut: 10800                     # Token超时时间（秒）
+  maxRefresh: 5400                   # Token刷新时间（秒）
+  multiLogin: true                   # 是否允许多用户同时登录
+  encryptKey: "49c54195e750b04e74a8429b17896586" # Token加密密钥
+  cacheModel: "redis"                # 缓存模式，可选memory、redis、dist
+  distPath: "./resource/data/distTokenDb" # 使用磁盘缓存时配置缓存目录
+  excludePaths:                      # 不需要验证Token的接口路径
+    - "/api/v1/system/login"
+
+# Redis 配置
+redis:
+  # 单实例配置
+  default:
+    address: 127.0.0.1:6379          # Redis服务器地址和端口
+    db: 1                            # Redis数据库编号
+    idleTimeout: "60s"               # Redis连接最大空闲时间
+    maxConnLifetime: "90s"           # Redis连接的最长存活时间
+    waitTimeout: "60s"               # 等待Redis连接池连接的超时时间
+    dialTimeout: "30s"               # Redis连接的TCP超时时间
+    readTimeout: "30s"               # Redis读操作超时时间
+    writeTimeout: "30s"              # Redis写操作超时时间
+    maxActive: 100                   # Redis连接池最大连接数
+
+system:
+  notCheckAuthAdminIds: [1,2,31]     # 无需验证后台权限的用户ID列表
+  dataDir: "./resource/data"         # 系统数据目录
+  cache:
+    model: "redis"                   # 缓存模式，可选memory、redis、dist
+    distPath: "./resource/data/distCacheDb" # 磁盘缓存的存储目录
+    prefix: "gFastV3Cache:"          # 缓存前缀
+
+# casbin 权限配置
+casbin:
+  modelFile: "./resource/casbin/rbac_model.conf" # Casbin模型文件路径
+  policyFile: "./resource/casbin/rbac_policy.csv" # Casbin策略文件路径
+
+# CLI 配置
+gfcli:
+  gen:
+    dao:
+      - link:            "mysql:root:root@tcp(127.0.0.1:3306)/gfast" # MySQL数据库连接信息
+        tables:          "tools_gen_table,tools_gen_table_column"   # 需要生成DAO层的数据库表
+        removePrefix:    "gf_"                                      # 生成代码时移除表前缀
+        descriptionTag:  true                                       # 是否生成描述标签
+        noModelComment:  true                                       # 是否去除Model注释
+        path: "./internal/app/system"                               # 生成代码保存路径
